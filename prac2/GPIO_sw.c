@@ -27,27 +27,28 @@ int gpio_set_value(char port, int pin, int value);
 
 static port_type* ports = 0;
 
-int main(int argc, char* argv[])
+int main()
 {
 	gpio_init();
-	gpio_set_mode('C', 5, 1);
-	gpio_set_mode('C', 6, 1);
-	gpio_set_mode('C', 8, 1);
 	gpio_set_mode('C', 9, 1);
+	gpio_set_mode('E',3,0);
 
-	gpio_set_value('C', 5, 1);
-	gpio_set_value('C', 6, 1);
-	gpio_set_value('C', 8, 1);
 	gpio_set_value('C', 9, 1);
-	
+	gpio_get_value('E',3);
+
 	usleep(10 * 1000);
 
 	int value = 0;
 	while (1)
 	{
-		sleep(5);
-		value = (value + 1) % 2;
-		gpio_set_value('C', 6, value);
+		value=(value+1)%2;
+		if(gpio_get_value('E',3)==0)
+		{
+			gpio_set_value('C',6,value);
+			value++;
+		}
+
+
 	}
 
 	return 0;
