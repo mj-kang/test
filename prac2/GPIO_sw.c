@@ -34,21 +34,21 @@ int main()
 	gpio_set_mode('E',3,0);
 
 	gpio_set_value('C', 9, 1);
-	gpio_get_value('E',3);
+	//gpio_get_value('E',3);
 
 	usleep(10 * 1000);
 
-	int value = 0;
+	int value = 0; //, state=0, pre_state;
+	gpio_get_value('E',3);
 	while (1)
 	{
-		value=(value+1)%2;
-		if(gpio_get_value('E',3)==0)
+		value = (value + 1) % 2;
+		//pre_state = state;
+		if (gpio_get_value('E',3) == 0)
 		{
-			gpio_set_value('C',6,value);
+			gpio_set_value('C', 9,value);
 			value++;
 		}
-
-
 	}
 
 	return 0;
