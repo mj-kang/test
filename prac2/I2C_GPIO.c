@@ -15,26 +15,21 @@
 #define MODE 0x00 //mode1
 
 #define LEDG_PWM0 0x02 //led0
-#define LEDB_PWM1 0x03 //led1 
+#define LEDB_PWM1 0x03 //led1
 #define LEDR_PWM2 0x04 //led2
-#define LEDOUT 0x80 //led output state
-#define RESET 0x6
+#define LEDOUT 0x08 //led output state
+#define RESET 0x06
 
-#define LED_ON 255
-#define LED_OFF 0
 
 /*gpio setting*/
-#define GPIO_MAX_PORT_COUNT 6
+#define GPIO_MAX_PORT_COUNT 8
 #define MEM_AREA_SIZE (GPIO_MAX_PORT_COUNT*sizeof(port_type))
 
 #define GPIO_IN 0x00
 #define GPIO_OUT 0x01
 #define GPIO_DISABLE 0x07
 
-
-
 int fd_i2c, fd_gpio;
-
 
 void I2C_SLAVE_CHECK()
 {
@@ -54,7 +49,7 @@ void I2C_SLAVE_CHECK()
 	}
 }
 
-int WriteData(uint8_t reg_addr, uint8_t *data, int size)
+int WriteData(uint8_t reg_addr, uint8_t* data, int size)
 {
 	uint8_t* buf;
 
@@ -86,25 +81,25 @@ void Init()
 {
 	uint8_t data = 0x0f;
 
-	WriteData(MODE, &data, 1); 
+	WriteData(MODE, &data, 1);
 	/* register auto-increment disable, auto-increment bit1=0,bit0=0,normal mode, 
 	  pca9632 responds to i2c--1, 2, 3, led all call i2c address */
 }
 
 void LEDOUT_Setting()
 {
-	uint8_t data = 0b11111111;
+	uint8_t data = 0xff;
 
 	WriteData(LEDOUT, &data, 1);
 }
 
-void First_reg_Setting()
+void First_reg_Setting(void)
 {
 	uint8_t data = 0;
 
-	WriteData(LEDG_PWM0, &data, 1); //green
-	WriteData(LEDB_PWM1, &data, 1); //blue
-	WriteData(LEDR_PWM2, &data, 1); //red
+	WriteData(LEDR_PWM2, &data, 1); //RED LED
+	WriteData(LEDG_PWM0, &data, 1); //GREEN LED
+	WriteData(LEDB_PWM1, &data, 1); //BLUE LED
 }
 
 
@@ -147,6 +142,7 @@ int gpio_init()
 	close(fd_gpio);
 	printf("map_addr: 0x%x, offset: 0x%x\n", map_addr, offset);
 	ports = (port_type*)(map_addr + offset);
+
 
 	return 0;
 }
@@ -207,38 +203,38 @@ int gpio_set_value(char port, int pin, int value)
 
 void Set_Switch()
 {
-	gpio_set_mode('E', 3, 0);
+	gpio_set_mode('E', 3, 0); //input
 	gpio_set_mode('E', 2, 0);
 	gpio_set_mode('E', 1, 0);
 	gpio_set_mode('E', 0, 0);
-	printf("Switch 6,5,3,4 on/off\n");
+	//gpio_set_mode('C', 9, 1); //led output
+	
 }
 
-/*if() problem  -> switch oo*/
 void Switch_on_LED()
 {
-	uint8_t on=255, off=0;
+	uint8_t on = 255, off = 0;
 
-	if (gpio_get_value('E', 3) == 0)
+	if (gpio_get_value('E', 3) == 0) //sw6
 	{
-		WriteData(LEDR_PWM2, &on, 1);
+		WriteData(LEDR_PWM2, &on, 1); 
 	}
-	if (gpio_get_value('E', 2) == 0)
+	else if (gpio_get_value('E', 2) == 0) //sw5
 	{
 		WriteData(LEDG_PWM0, &on, 1);
 	}
-	if (gpio_get_value('E', 1) == 0)
+	else if (gpio_get_value('E', 0) == 0) //sw3
 	{
-		WriteData(LEDB_PWM1, &on, 1);
+		WriteData(LEDB_PWM1, &on, 1);		
 	}
-	if (gpio_get_value('E', 0) == 0)
+	else if (gpio_get_value('E', 1) == 0) //sw4
 	{
 		WriteData(LEDR_PWM2, &off, 1);
 		WriteData(LEDG_PWM0, &off, 1);
 		WriteData(LEDB_PWM1, &off, 1);
 	}
-
 }
+
 
 int main()
 {
@@ -248,21 +244,22 @@ int main()
 		perror("i2c open nono\n");
 		exit(1);
 	}
+
 	I2C_SLAVE_CHECK();
 	Reset();
 	Init();
 	LEDOUT_Setting();
+	First_reg_Setting();
 	gpio_init();
+	printf("Switch 6,5,3,4 on/off\n");
 	Set_Switch();
 
-	uint8_t val=255;
 	while (1)
 	{
-		//Switch_on_LED();
-		WriteData(LEDR_PWM2, &val, 1);
-		
-
+		Switch_on_LED();
 	}
 
 	return 0;
 }
+
+
