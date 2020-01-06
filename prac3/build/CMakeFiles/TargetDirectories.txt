@@ -1,0 +1,3 @@
+/home/kmj/my_git/prac3/build/CMakeFiles/rebuild_cache.dir
+/home/kmj/my_git/prac3/build/CMakeFiles/CAM_V4L2.dir
+/home/kmj/my_git/prac3/build/CMakeFiles/edit_cache.dir

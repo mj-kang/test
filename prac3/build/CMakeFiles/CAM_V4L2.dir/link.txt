@@ -1,0 +1,1 @@
+/home/kmj/Edukit_BSP/linaro-4.9.4-gcc/bin/arm-linux-gnueabihf-g++    -rdynamic CMakeFiles/CAM_V4L2.dir/src/CamWithV4L2.cpp.o CMakeFiles/CAM_V4L2.dir/src/main.cpp.o  -o CAM_V4L2 -lpthread 

@@ -2,6 +2,7 @@
 #define CAMWITHV4L2_H
 
 #include <linux/videodev2.h>
+#include <stdint.h>
 #include <iostream>
 struct buffer
 {
